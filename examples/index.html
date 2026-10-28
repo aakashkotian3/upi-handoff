@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>upi-handoff demo</title>
+  <style>
+    body { font: 16px/1.4 system-ui, sans-serif; max-width: 420px; margin: 24px auto; padding: 0 16px; }
+    button { display: block; width: 100%; min-height: 48px; margin: 8px 0; font: inherit; font-weight: 600; border-radius: 12px; border: 1px solid #ccc; background: #fff; }
+    #ask { padding: 16px; border-radius: 12px; background: #f1f5f9; }
+    code { word-break: break-all; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>upi-handoff</h1>
+  <label>UPI ID <input id="upi" value="" placeholder="you@okaxis" /></label>
+  <p>Device: <b id="device"></b></p>
+  <div id="apps"></div>
+  <p id="qr" hidden>No UPI app opened. Scan this link instead: <code id="link"></code></p>
+  <div id="ask" hidden>
+    <p>Did you pay <span id="ask-name"></span>?</p>
+    <button id="yes">Yes</button>
+    <button id="no">Not yet</button>
+  </div>
+  <script type="module">
+    import { UPI_APPS, buildUpiLink, createPaymentCheck, detectDevice, openUpiApp } from '../dist/index.js';
+
+    const $ = (id) => document.getElementById(id);
+    const device = detectDevice();
+    $('device').textContent = device;
+
+    const check = createPaymentCheck({
+      onReturn: ({ data }) => {
+        $('ask-name').textContent = data.to;
+        $('ask').hidden = false;
+      },
+    });
+    const answer = () => { check.clear(); $('ask').hidden = true; };
+    $('yes').onclick = answer;
+    $('no').onclick = answer;
+
+    // No amount prefilled: the payer types it in their UPI app.
+    const payee = () => ({ upiId: $('upi').value, name: 'upi-handoff demo', note: 'upi-handoff demo' });
+    const showQr = () => { $('link').textContent = buildUpiLink(payee()); $('qr').hidden = false; };
+
+    for (const app of UPI_APPS) {
+      const b = document.createElement('button');
+      b.textContent = app.name;
+      b.onclick = () => {
+        $('qr').hidden = true;
+        check.start({ to: $('upi').value });
+        if (!openUpiApp(app.id, payee(), { onNotInstalled: showQr })) showQr();
+      };
+      $('apps').append(b);
+    }
+  </script>
+</body>
+</html>

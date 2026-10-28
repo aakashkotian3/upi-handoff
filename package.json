@@ -1,0 +1,54 @@
+{
+  "name": "upi-handoff",
+  "version": "0.1.0",
+  "description": "Send a web app's users to the right UPI app on Android and iPhone, and ask \"Did you pay?\" when they come back.",
+  "keywords": [
+    "upi",
+    "india",
+    "payments",
+    "deep-link",
+    "intent",
+    "pwa",
+    "phonepe",
+    "google-pay",
+    "paytm",
+    "bhim"
+  ],
+  "license": "MIT",
+  "author": "Aakash Kotian",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aakashkotian3/upi-handoff.git"
+  },
+  "homepage": "https://github.com/aakashkotian3/upi-handoff#readme",
+  "bugs": {
+    "url": "https://github.com/aakashkotian3/upi-handoff/issues"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
+  }
+}

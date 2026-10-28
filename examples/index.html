@@ -13,7 +13,8 @@
 </head>
 <body>
   <h1>upi-handoff</h1>
-  <label>UPI ID <input id="upi" value="" placeholder="you@okaxis" /></label>
+  <label>UPI ID <input id="upi" placeholder="you@okaxis" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" /></label>
+  <p id="error" hidden>Enter a UPI ID first.</p>
   <p>Device: <b id="device"></b></p>
   <div id="apps"></div>
   <p id="qr" hidden>No UPI app opened. Scan this link instead: <code id="link"></code></p>
@@ -23,7 +24,7 @@
     <button id="no">Not yet</button>
   </div>
   <script type="module">
-    import { UPI_APPS, buildUpiLink, createPaymentCheck, detectDevice, openUpiApp } from '../dist/index.js';
+    import { UPI_APPS, buildUpiLink, createPaymentCheck, detectDevice, isUpiId, openUpiApp } from '../dist/index.js';
 
     const $ = (id) => document.getElementById(id);
     const device = detectDevice();
@@ -48,6 +49,8 @@
       b.textContent = app.name;
       b.onclick = () => {
         $('qr').hidden = true;
+        $('error').hidden = isUpiId($('upi').value);
+        if (!$('error').hidden) return;
         check.start({ to: $('upi').value });
         if (!openUpiApp(app.id, payee(), { onNotInstalled: showQr })) showQr();
       };
